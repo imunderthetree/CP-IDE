@@ -1,7 +1,16 @@
 {
   "name": "cp-ide",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A high-performance desktop IDE tailored for competitive programming.",
+  "author": "Yusuf",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imunderthetree/CP-IDE.git"
+  },
+  "homepage": "https://github.com/imunderthetree/CP-IDE#readme",
+  "keywords": ["competitive-programming", "ide", "tauri", "react"],
   "type": "module",
   "scripts": {
     "dev": "vite",

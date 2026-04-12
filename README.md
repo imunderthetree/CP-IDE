@@ -6,6 +6,10 @@
 
 Built with [Tauri](https://tauri.app) · [React](https://react.dev) · [TypeScript](https://typescriptlang.org) · [Rust](https://rust-lang.org)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-000000?style=flat&logo=rust&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
@@ -25,15 +29,18 @@ CP-IDE is a lightweight, purpose-built desktop IDE for competitive programming. 
 - **⚙️ Bundled Compilers** — C++, Python, and Java compilation with debug (`-g`) and judge (`-O2`) modes
 - **📊 Platform Dashboard** — Track your Codeforces, LeetCode, and HackerRank profiles in one place
 - **🧪 Test Cases Panel** — Run multiple test cases with expected vs actual output diffing
-- **🔐 WebView Login** — Sign in to LeetCode & HackerRank via popup browser window (cookies stored securely in Windows Credential Manager)
-- **💾 Smart Caching** — Platform data cached in SQLite with 5-minute TTL to avoid API rate limits
-- **🎨 Industrial Terminal Aesthetic** — Dark theme inspired by WezTerm and Zed
+- **🔐 WebView Login** — Sign in to platform integrations safely
+- **💾 Smart Caching** — SQLite cache to avoid API rate limits
+- **🎨 Custom Themes** — 6 distinct themes with appearance configurations
+- **📦 Extension System** — Build your own community plugins
+- **🧠 Complexity Analysis** — Live heuristic and empirical complexity curves
+- **✂️ Snippet Library** — Fast template management
 
 ---
 
-## Screenshots
+## ⬇️ Download
 
-> Coming soon — the app is under active development.
+Download the latest version of CP-IDE from the [GitHub Releases](https://github.com/imunderthetree/CP-IDE/releases) page.
 
 ---
 
@@ -44,7 +51,7 @@ CP-IDE is a lightweight, purpose-built desktop IDE for competitive programming. 
 │                   React Frontend                │
 │  ┌──────────┐ ┌───────────┐ ┌────────────────┐  │
 │  │  Editor   │ │ Dashboard │ │   Settings     │  │
-│  │  Monaco   │ │ 3 Cards   │ │   Accounts     │  │
+│  │ Plugins/UI│ │ 3 Cards   │ │   Accounts     │  │
 │  └──────────┘ └───────────┘ └────────────────┘  │
 │                      │ invoke()                  │
 ├──────────────────────┼──────────────────────────┤
@@ -89,8 +96,8 @@ CP-IDE is a lightweight, purpose-built desktop IDE for competitive programming. 
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/cpide.git
-cd cpide
+git clone https://github.com/imunderthetree/CP-IDE.git
+cd CP-IDE
 
 # Install frontend dependencies
 npm install
@@ -105,8 +112,6 @@ npm run tauri dev
 npm run tauri build
 ```
 
-The installer will be in `src-tauri/target/release/bundle/`.
-
 ---
 
 ## Project Structure
@@ -115,14 +120,17 @@ The installer will be in `src-tauri/target/release/bundle/`.
 cpide/
 ├── src/                          # React frontend
 │   ├── App.tsx                   # Main app shell + routing
-│   ├── App.css                   # Full design system
-│   ├── features/
+│   ├── context/                  # React contexts (Editor, Extensions)
+│   ├── features/                 
 │   │   ├── editor/               # Monaco editor + terminal + test cases
 │   │   ├── dashboard/            # Platform cards + charts
-│   │   └── settings/             # Account management
+│   │   ├── settings/             # Settings & Appearance
+│   │   ├── snippets/             # Snippet library
+│   │   └── complexity/           # Complexity analysis panel
 │   └── lib/
 │       ├── tauriClient.ts        # Typed IPC wrappers
-│       └── platformApi.ts        # Unified platform data types
+│       ├── pluginApi.ts          # Extension API
+│       └── themes.ts             # Appearance configurations
 ├── src-tauri/                    # Rust backend
 │   ├── src/
 │   │   ├── lib.rs                # Command registration
@@ -132,6 +140,7 @@ cpide/
 │   │       ├── codeforces.rs     # CF API integration
 │   │       ├── leetcode.rs       # LC GraphQL integration
 │   │       ├── hackerrank.rs     # HR REST API integration
+│   │       ├── snippets.rs       # Local snippet database
 │   │       └── cache.rs          # SQLite caching layer
 │   └── Cargo.toml
 └── package.json
@@ -155,21 +164,22 @@ cpide/
 - [x] **v0.2** — Dashboard + Codeforces integration
 - [x] **v0.3** — Test cases panel + diff viewer
 - [x] **v0.4** — LeetCode + HackerRank + WebView login + Settings
-- [ ] **v0.5** — Competitive Companion integration (auto-parse test cases)
-- [ ] **v0.6** — Snippets library + contest mode
-- [ ] **v0.7** — Stress testing + random test generation
+- [x] **v0.5** — Snippets Library
+- [x] **v0.6** — Complexity Analysis system
+- [x] **v0.7** — Extension System & Plugins
+- [x] **v1.0** — Initial open source release
+
+## Future Plans
+- Competitive Companion browser extension integration
+- Stress testing & automated random case generation
+- Contest mode
 
 ---
 
 ## Contributing
 
 This project is under active development. Contributions are welcome!
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/amazing`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing`)
-5. Open a Pull Request
+Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 

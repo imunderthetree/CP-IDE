@@ -18,8 +18,7 @@ export type BeforeRunCallback = (
 export type AfterRunCallback = (res: RunCodeResponse) => void;
 
 class CpIdeExtensionApi {
-  public version = "0.8.0";
-
+  public version = "1.0.0";
   // Hidden references to the actual editor getter/setter injected later
   public _internal = {
     getEditorText: (): string => "",

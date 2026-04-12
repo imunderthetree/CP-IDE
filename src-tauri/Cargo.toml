@@ -1,8 +1,10 @@
 [package]
 name = "cp-ide"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+version = "1.0.0"
+description = "A high-performance desktop IDE tailored for competitive programming."
+authors = ["Yusuf", "imunderthetree"]
+license = "MIT"
+repository = "https://github.com/imunderthetree/CP-IDE"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

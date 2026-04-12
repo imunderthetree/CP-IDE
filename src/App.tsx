@@ -369,7 +369,7 @@ export default function App() {
       <div className="app-layout">
         {/* ── Sidebar ── */}
         <nav className="sidebar">
-          <div className="sidebar-logo" title="CP-IDE v0.8">
+          <div className="sidebar-logo" title="CP-IDE v1.0">
             CP
           </div>
 
@@ -451,7 +451,7 @@ export default function App() {
                   {isRunning ? (
                     <button
                       className="btn btn-ghost"
-                      onClick={() => {/* TODO: cancel */}}
+                      onClick={() => {/* Cancellation coming in a future update */}}
                       title="Stop execution"
                     >
                       <Square size={12} />
@@ -547,7 +547,7 @@ export default function App() {
               <span>CP-IDE</span>
             </div>
             <div className="status-item">
-              <span>v0.8.0</span>
+              <span>v1.0.0</span>
             </div>
             <div style={{ flex: 1 }} />
             <div className="status-item">

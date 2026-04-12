@@ -32,7 +32,6 @@ export function ExtensionProvider({ children }: { children: ReactNode }) {
             // Execute the script, passing in our globally constructed cpide API
             const runner = new Function("cpide", script);
             runner(apiInstance);
-            console.log(`Loaded plugin: ${ext.name}`);
           } catch (execErr) {
             console.error(`Failed to execute extension ${ext.id}:`, execErr);
           }

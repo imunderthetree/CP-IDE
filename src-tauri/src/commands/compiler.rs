@@ -150,7 +150,7 @@ fn run_process(
         stderr,
         exit_code,
         runtime_ms: elapsed.as_millis() as u64,
-        memory_kb: 0, // TODO: Windows job objects for memory tracking
+        memory_kb: 0, // Note: Windows job objects required for accurate memory tracking (future enhancement)
     })
 }
 
