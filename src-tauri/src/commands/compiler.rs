@@ -67,6 +67,17 @@ fn resolve_compiler(app_handle: &tauri::AppHandle, binary_name: &str, subdir: &s
             return bundled.to_string_lossy().to_string();
         }
     }
+
+    if binary_name == "python" {
+        for cmd in ["python3", "python", "py", "pypy3"] {
+            if let Ok(out) = std::process::Command::new(cmd).arg("--version").output() {
+                if out.status.success() {
+                    return cmd.to_string();
+                }
+            }
+        }
+    }
+
     // Fallback: rely on system PATH
     binary_name.to_string()
 }

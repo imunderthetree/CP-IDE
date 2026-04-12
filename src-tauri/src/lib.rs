@@ -6,6 +6,9 @@
 mod commands;
 
 use commands::cache::{self, DbState};
+use commands::complexity::ComplexityCancel;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -15,9 +18,15 @@ pub fn run() {
         conn: std::sync::Mutex::new(conn),
     };
 
+    // Complexity analysis cancellation flag
+    let cancel_state = ComplexityCancel {
+        cancelled: Arc::new(AtomicBool::new(false)),
+    };
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(db_state)
+        .manage(cancel_state)
         .invoke_handler(tauri::generate_handler![
             // Compiler
             commands::compiler::run_code,
@@ -34,6 +43,21 @@ pub fn run() {
             commands::leetcode::fetch_leetcode_profile,
             // HackerRank (session cookie from keyring)
             commands::hackerrank::fetch_hackerrank_profile,
+            // Snippets (library CRUD + community)
+            commands::snippets::get_all_snippets,
+            commands::snippets::save_personal_snippet,
+            commands::snippets::delete_snippet,
+            commands::snippets::fetch_community_index,
+            commands::snippets::download_snippet,
+            // Compiler detection
+            commands::compiler_detect::detect_compilers,
+            // Complexity analysis (empirical runner)
+            commands::complexity::run_complexity_analysis,
+            commands::complexity::stop_complexity_analysis,
+            // Extensions
+            commands::extensions::get_extensions_dir_path,
+            commands::extensions::get_installed_extensions,
+            commands::extensions::read_extension_script,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

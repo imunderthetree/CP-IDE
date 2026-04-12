@@ -136,3 +136,123 @@ export async function fetchLeetCodeProfile(): Promise<PlatformProfile> {
 export async function fetchHackerRankProfile(): Promise<PlatformProfile> {
   return invoke<PlatformProfile>("fetch_hackerrank_profile");
 }
+
+// ─── Snippet Commands ─────────────────────────────────────────────────────────
+
+import type { Snippet, SnippetMeta } from "../features/snippets/types";
+
+/**
+ * Get all snippets from the local SQLite database (personal + community).
+ * Does NOT include built-in snippets — those are loaded from builtins.ts.
+ */
+export async function getAllSnippets(): Promise<Snippet[]> {
+  return invoke<Snippet[]>("get_all_snippets");
+}
+
+/**
+ * Save a personal snippet to the local database.
+ */
+export async function savePersonalSnippet(snippet: Snippet): Promise<void> {
+  return invoke<void>("save_personal_snippet", { snippet });
+}
+
+/**
+ * Delete a snippet by ID (personal or downloaded community only).
+ */
+export async function deleteSnippet(id: string): Promise<void> {
+  return invoke<void>("delete_snippet", { id });
+}
+
+/**
+ * Fetch the community snippet index from GitHub.
+ * Returns lightweight metadata — not the full code.
+ */
+export async function fetchCommunityIndex(): Promise<SnippetMeta[]> {
+  return invoke<SnippetMeta[]>("fetch_community_index");
+}
+
+/**
+ * Download a single community snippet by path, saving it to SQLite.
+ */
+export async function downloadSnippet(path: string): Promise<Snippet> {
+  return invoke<Snippet>("download_snippet", { path });
+}
+
+// ─── Compiler Detection Commands ──────────────────────────────────────────────
+
+export interface DetectedCompiler {
+  language: string;
+  source: string;
+  path: string;
+  version: string;
+  is_bundled: boolean;
+}
+
+/**
+ * Detect available compilers (bundled first, then system PATH).
+ */
+export async function detectCompilers(): Promise<DetectedCompiler[]> {
+  return invoke<DetectedCompiler[]>("detect_compilers");
+}
+
+// ─── Complexity Analysis Commands ─────────────────────────────────────────────
+
+export type InputStyle =
+  | "SingleInt"
+  | "NIntegers"
+  | "NByMGrid"
+  | { Custom: string };
+
+export interface ComplexityDataPoint {
+  n: number;
+  time_ms: number;
+}
+
+/**
+ * Run empirical complexity analysis. Emits 'complexity_point' events.
+ */
+export async function runComplexityAnalysis(
+  code: string,
+  language: string,
+  nValues: number[],
+  inputStyle: InputStyle,
+  compilerPath?: string
+): Promise<void> {
+  return invoke<void>("run_complexity_analysis", {
+    code,
+    language,
+    nValues,
+    inputStyle,
+    compilerPath: compilerPath ?? null,
+  });
+}
+
+/**
+ * Stop a running complexity analysis.
+ */
+export async function stopComplexityAnalysis(): Promise<void> {
+  return invoke<void>("stop_complexity_analysis");
+}
+
+// ─── Extension Commands ───────────────────────────────────────────────────────
+
+export interface ExtensionConfig {
+  id: string;
+  name: string;
+  description: string;
+  author: string;
+  is_loaded: boolean;
+}
+
+export async function getExtensionsDirPath(): Promise<string> {
+  return invoke<string>("get_extensions_dir_path");
+}
+
+export async function getInstalledExtensions(): Promise<ExtensionConfig[]> {
+  return invoke<ExtensionConfig[]>("get_installed_extensions");
+}
+
+export async function readExtensionScript(id: string): Promise<string> {
+  return invoke<string>("read_extension_script", { id });
+}
+

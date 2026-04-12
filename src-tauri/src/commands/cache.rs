@@ -45,6 +45,18 @@ pub fn init_db() -> Result<Connection, String> {
             key   TEXT PRIMARY KEY,
             value TEXT NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS snippets (
+            id          TEXT PRIMARY KEY,
+            title       TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '',
+            language    TEXT NOT NULL,
+            tags        TEXT NOT NULL DEFAULT '[]',
+            code        TEXT NOT NULL,
+            source      TEXT NOT NULL,
+            author      TEXT,
+            created_at  TEXT NOT NULL
+        );
         ",
     )
     .map_err(|e| format!("Failed to create tables: {}", e))?;

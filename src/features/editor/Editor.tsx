@@ -1,11 +1,15 @@
 // features/editor/Editor.tsx — Monaco editor wrapper for CP-IDE.
 //
 // Provides a full-height code editor with syntax highlighting,
-// custom dark theme, and language-aware mode switching.
+// custom dark theme, language-aware mode switching,
+// and complexity analysis hover providers (Layer 1 + 2).
 
 import { useRef, useCallback } from "react";
 import MonacoEditor, { OnMount } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
+import { useEditor } from "../../context/EditorContext";
+import { registerComplexityHoverProvider } from "../../lib/complexity_static";
+import { loadAppearance } from "../../lib/themes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,53 +74,67 @@ const CP_IDE_THEME: editor.IStandaloneThemeData = {
 
 // ─── Default Editor Options ───────────────────────────────────────────────────
 
-const EDITOR_OPTIONS: editor.IStandaloneEditorConstructionOptions = {
-  fontSize: 14,
-  fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-  fontLigatures: true,
-  lineHeight: 22,
-  minimap: { enabled: false },
-  scrollBeyondLastLine: false,
-  padding: { top: 12, bottom: 12 },
-  renderLineHighlight: "line",
-  cursorBlinking: "smooth",
-  cursorSmoothCaretAnimation: "on",
-  smoothScrolling: true,
-  tabSize: 4,
-  wordWrap: "off",
-  automaticLayout: true,
-  bracketPairColorization: { enabled: true },
-  guides: {
-    bracketPairs: true,
-    indentation: true,
-  },
-  suggest: {
-    showKeywords: true,
-    showSnippets: true,
-  },
-  quickSuggestions: true,
-  folding: true,
-  glyphMargin: false,
-  overviewRulerBorder: false,
-  hideCursorInOverviewRuler: true,
-  contextmenu: true,
-};
+function getEditorOptions(): editor.IStandaloneEditorConstructionOptions {
+  const appearance = loadAppearance();
+  return {
+    fontSize: appearance.fontSize,
+    fontFamily: appearance.fontFamily,
+    fontLigatures: true,
+    lineHeight: Math.round(appearance.fontSize * 1.57),
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    padding: { top: 12, bottom: 12 },
+    renderLineHighlight: "line",
+    cursorBlinking: "smooth",
+    cursorSmoothCaretAnimation: "on",
+    smoothScrolling: true,
+    tabSize: 4,
+    wordWrap: "off",
+    automaticLayout: true,
+    bracketPairColorization: { enabled: true },
+    guides: {
+      bracketPairs: true,
+      indentation: true,
+    },
+    suggest: {
+      showKeywords: true,
+      showSnippets: true,
+    },
+    quickSuggestions: true,
+    folding: true,
+    glyphMargin: false,
+    overviewRulerBorder: false,
+    hideCursorInOverviewRuler: true,
+    contextmenu: true,
+  };
+}
+
+// Track whether hover providers have been registered (register once globally)
+let hoverProvidersRegistered = false;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Editor({ value, onChange, language }: EditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const { setEditor } = useEditor();
 
   const handleMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
+    setEditor(editor);
 
     // Register custom theme
     monaco.editor.defineTheme("cp-ide-dark", CP_IDE_THEME);
     monaco.editor.setTheme("cp-ide-dark");
 
+    // Register complexity hover providers (once)
+    if (!hoverProvidersRegistered) {
+      registerComplexityHoverProvider(monaco as typeof import("monaco-editor"));
+      hoverProvidersRegistered = true;
+    }
+
     // Focus editor on mount
     editor.focus();
-  }, []);
+  }, [setEditor]);
 
   const handleChange = useCallback(
     (val: string | undefined) => {
@@ -134,7 +152,7 @@ export default function Editor({ value, onChange, language }: EditorProps) {
         value={value}
         onChange={handleChange}
         onMount={handleMount}
-        options={EDITOR_OPTIONS}
+        options={getEditorOptions()}
         loading={
           <div className="coming-soon">
             <div className="spinner" />
