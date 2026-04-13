@@ -40,9 +40,33 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-The `Publish` workflow will create a draft GitHub release and attach the Windows build artifacts.
+The `Publish` workflow will create a draft GitHub release and attach the Windows installer automatically.
 
-## 5. Final Release Review
+## 5. Finish the GitHub Release Page
+
+After the workflow finishes:
+
+1. Open your repository's Releases page:
+   `https://github.com/imunderthetree/CP-IDE/releases`
+2. Open the new draft release for the tag you pushed, for example `v1.0.0`.
+3. Confirm the MSI asset is attached.
+4. Review the auto-generated release notes.
+5. Add a short intro at the top if you want, such as install notes or highlights.
+6. Click **Publish release**.
+
+Your public release page will then live at:
+
+```text
+https://github.com/imunderthetree/CP-IDE/releases/tag/v1.0.0
+```
+
+The latest release page will always be:
+
+```text
+https://github.com/imunderthetree/CP-IDE/releases/latest
+```
+
+## 6. Final Release Review
 
 Before publishing the draft release, verify:
 

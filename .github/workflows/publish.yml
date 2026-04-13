@@ -43,6 +43,14 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: CP-IDE v__VERSION__
-          releaseBody: See CHANGELOG.md for release notes and download the installer from the assets below.
+          releaseBody: |
+            Download the Windows installer from the assets below.
+
+            Direct release page:
+            https://github.com/imunderthetree/CP-IDE/releases/tag/v__VERSION__
+
+            Changelog:
+            https://github.com/imunderthetree/CP-IDE/blob/main/CHANGELOG.md
           releaseDraft: true
           prerelease: false
+          generateReleaseNotes: true
