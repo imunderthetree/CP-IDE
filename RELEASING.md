@@ -16,7 +16,6 @@ Before cutting a release, make sure these files all reflect the same version:
 ```sh
 npm ci
 npm run check
-npm run tauri:build
 ```
 
 `npm run check` validates linting, frontend build output, release metadata, Rust formatting, and `cargo check`.
@@ -31,7 +30,19 @@ If you want the installer to ship with portable compilers, place them in `src-ta
 
 Those folders are intentionally gitignored so local release assets do not get committed by accident.
 
-## 4. Publish Through GitHub Actions
+## 4. Build the Windows Installer Locally
+
+```sh
+npm run tauri:build
+```
+
+The release installer is generated locally at:
+
+```text
+src-tauri/target/release/bundle/msi/
+```
+
+## 5. Create and Push the Release Tag
 
 Push a version tag that matches the app version:
 
@@ -40,19 +51,17 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-The `Publish` workflow will create a draft GitHub release and attach the Windows installer automatically.
-
-## 5. Finish the GitHub Release Page
-
-After the workflow finishes:
+## 6. Draft the GitHub Release Manually
 
 1. Open your repository's Releases page:
    `https://github.com/imunderthetree/CP-IDE/releases`
-2. Open the new draft release for the tag you pushed, for example `v1.0.0`.
-3. Confirm the MSI asset is attached.
-4. Review the auto-generated release notes.
-5. Add a short intro at the top if you want, such as install notes or highlights.
-6. Click **Publish release**.
+2. Click **Draft a new release**.
+3. Choose the tag you pushed, for example `v1.0.0`.
+4. Set the release title, for example `CP-IDE v1.0.0`.
+5. Upload the MSI from `src-tauri/target/release/bundle/msi/`.
+6. Copy the matching highlights from `CHANGELOG.md` into the release notes.
+7. Add any install notes or known limitations you want at the top.
+8. Click **Publish release**.
 
 Your public release page will then live at:
 
@@ -66,7 +75,7 @@ The latest release page will always be:
 https://github.com/imunderthetree/CP-IDE/releases/latest
 ```
 
-## 6. Final Release Review
+## 7. Final Release Review
 
 Before publishing the draft release, verify:
 
