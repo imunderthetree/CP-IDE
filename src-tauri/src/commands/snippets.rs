@@ -50,17 +50,21 @@ const COMMUNITY_INDEX_URL: &str =
 /// Get all snippets from the local SQLite database.
 #[tauri::command]
 pub async fn get_all_snippets(db: State<'_, DbState>) -> Result<Vec<Snippet>, String> {
-    let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|e| format!("DB lock error: {}", e))?;
 
     let mut stmt = conn
-        .prepare("SELECT id, title, description, language, tags, code, source, author FROM snippets")
+        .prepare(
+            "SELECT id, title, description, language, tags, code, source, author FROM snippets",
+        )
         .map_err(|e| format!("Query error: {}", e))?;
 
     let snippets = stmt
         .query_map([], |row| {
             let tags_json: String = row.get(4)?;
-            let tags: Vec<String> =
-                serde_json::from_str(&tags_json).unwrap_or_default();
+            let tags: Vec<String> = serde_json::from_str(&tags_json).unwrap_or_default();
 
             Ok(Snippet {
                 id: row.get(0)?,
@@ -83,13 +87,13 @@ pub async fn get_all_snippets(db: State<'_, DbState>) -> Result<Vec<Snippet>, St
 
 /// Save a personal snippet to the database.
 #[tauri::command]
-pub async fn save_personal_snippet(
-    snippet: Snippet,
-    db: State<'_, DbState>,
-) -> Result<(), String> {
-    let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
-    let tags_json = serde_json::to_string(&snippet.tags)
-        .map_err(|e| format!("JSON serialize error: {}", e))?;
+pub async fn save_personal_snippet(snippet: Snippet, db: State<'_, DbState>) -> Result<(), String> {
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|e| format!("DB lock error: {}", e))?;
+    let tags_json =
+        serde_json::to_string(&snippet.tags).map_err(|e| format!("JSON serialize error: {}", e))?;
     let now = chrono::Utc::now().to_rfc3339();
 
     conn.execute(
@@ -114,7 +118,10 @@ pub async fn save_personal_snippet(
 /// Delete a snippet by ID (personal or community only — builtins can't be deleted).
 #[tauri::command]
 pub async fn delete_snippet(id: String, db: State<'_, DbState>) -> Result<(), String> {
-    let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|e| format!("DB lock error: {}", e))?;
 
     conn.execute("DELETE FROM snippets WHERE id = ?1", params![id])
         .map_err(|e| format!("Delete error: {}", e))?;
@@ -136,7 +143,10 @@ pub async fn fetch_community_index() -> Result<Vec<SnippetMeta>, String> {
         .map_err(|e| format!("Network error: {}", e))?;
 
     if !response.status().is_success() {
-        return Err(format!("HTTP {}: Failed to fetch community index", response.status()));
+        return Err(format!(
+            "HTTP {}: Failed to fetch community index",
+            response.status()
+        ));
     }
 
     let index: CommunityIndex = response
@@ -149,10 +159,7 @@ pub async fn fetch_community_index() -> Result<Vec<SnippetMeta>, String> {
 
 /// Download a single community snippet by its path, save it to SQLite.
 #[tauri::command]
-pub async fn download_snippet(
-    path: String,
-    db: State<'_, DbState>,
-) -> Result<Snippet, String> {
+pub async fn download_snippet(path: String, db: State<'_, DbState>) -> Result<Snippet, String> {
     let client = reqwest::Client::new();
 
     let url = format!(
@@ -168,7 +175,10 @@ pub async fn download_snippet(
         .map_err(|e| format!("Network error: {}", e))?;
 
     if !response.status().is_success() {
-        return Err(format!("HTTP {}: Failed to download snippet", response.status()));
+        return Err(format!(
+            "HTTP {}: Failed to download snippet",
+            response.status()
+        ));
     }
 
     let snippet: Snippet = response
@@ -177,9 +187,12 @@ pub async fn download_snippet(
         .map_err(|e| format!("Parse error: {}", e))?;
 
     // Save to local database
-    let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
-    let tags_json = serde_json::to_string(&snippet.tags)
-        .map_err(|e| format!("JSON serialize error: {}", e))?;
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|e| format!("DB lock error: {}", e))?;
+    let tags_json =
+        serde_json::to_string(&snippet.tags).map_err(|e| format!("JSON serialize error: {}", e))?;
     let now = chrono::Utc::now().to_rfc3339();
 
     conn.execute(

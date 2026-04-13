@@ -9,30 +9,59 @@
     "type": "git",
     "url": "https://github.com/imunderthetree/CP-IDE.git"
   },
+  "bugs": {
+    "url": "https://github.com/imunderthetree/CP-IDE/issues"
+  },
   "homepage": "https://github.com/imunderthetree/CP-IDE#readme",
-  "keywords": ["competitive-programming", "ide", "tauri", "react"],
+  "keywords": [
+    "competitive-programming",
+    "ide",
+    "tauri",
+    "react"
+  ],
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "release:check": "node ./scripts/release-check.mjs",
+    "rust:fmt": "cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check",
+    "rust:check": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "check": "npm run lint && npm run build && npm run release:check && npm run rust:fmt && npm run rust:check",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "lucide-react": "^1.8.0",
+    "monaco-editor": "^0.55.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "recharts": "^3.8.1"
   },
+  "overrides": {
+    "dompurify": "^3.3.3"
+  },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@tauri-apps/cli": "^2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.5.0",
     "typescript": "~5.8.3",
+    "typescript-eslint": "^8.58.1",
     "vite": "^7.0.4"
   }
 }

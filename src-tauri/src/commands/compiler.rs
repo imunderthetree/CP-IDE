@@ -296,7 +296,10 @@ fn extract_java_class_name(code: &str) -> Option<String> {
         let trimmed = line.trim();
         if trimmed.starts_with("public class ") {
             let rest = &trimmed["public class ".len()..];
-            let name: String = rest.chars().take_while(|c| c.is_alphanumeric() || *c == '_').collect();
+            let name: String = rest
+                .chars()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect();
             if !name.is_empty() {
                 return Some(name);
             }
@@ -503,4 +506,3 @@ pub async fn run_batch(
         _ => Err(format!("Unsupported language: {}", request.language)),
     }
 }
-

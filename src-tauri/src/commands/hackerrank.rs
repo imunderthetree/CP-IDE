@@ -5,9 +5,7 @@
 // via the keyring crate. Results are cached in SQLite with 30-min TTL.
 
 use crate::commands::cache::{self, DbState};
-use crate::commands::codeforces::{
-    Badge, CalendarDay, PlatformProfile, TagBucket,
-};
+use crate::commands::codeforces::{Badge, CalendarDay, PlatformProfile, TagBucket};
 use chrono::Utc;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -95,8 +93,13 @@ async fn hr_fetch<T: serde::de::DeserializeOwned>(
         ));
     }
 
-    serde_json::from_str(&text)
-        .map_err(|e| format!("Failed to parse HackerRank response: {} — {}", e, &text[..text.len().min(200)]))
+    serde_json::from_str(&text).map_err(|e| {
+        format!(
+            "Failed to parse HackerRank response: {} — {}",
+            e,
+            &text[..text.len().min(200)]
+        )
+    })
 }
 
 // ─── Data Transformation ──────────────────────────────────────────────────────
@@ -166,16 +169,17 @@ pub async fn fetch_hackerrank_profile(
     let cookie = {
         let entry = keyring::Entry::new("cp-ide", "cpide_hackerrank_session")
             .map_err(|e| format!("Keyring error: {}", e))?;
-        entry.get_password().map_err(|_| "NOT_CONNECTED".to_string())?
+        entry
+            .get_password()
+            .map_err(|_| "NOT_CONNECTED".to_string())?
     };
 
     let client = build_hr_client()?;
 
     // Auto-detect username from session
-    let auth_me: HrAuthMe = hr_fetch(&client, "https://www.hackerrank.com/rest/auth/me", &cookie).await?;
-    let username = auth_me
-        .model
-        .and_then(|m| m.username);
+    let auth_me: HrAuthMe =
+        hr_fetch(&client, "https://www.hackerrank.com/rest/auth/me", &cookie).await?;
+    let username = auth_me.model.and_then(|m| m.username);
     let username = match username {
         Some(u) => u,
         None => {
@@ -189,7 +193,10 @@ pub async fn fetch_hackerrank_profile(
 
     // Check cache (30-min TTL)
     {
-        let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|e| format!("DB lock error: {}", e))?;
         if let Some(cached) = cache::get_cached(&conn, "hackerrank", &username) {
             let profile: PlatformProfile = serde_json::from_str(&cached)
                 .map_err(|e| format!("Failed to deserialize cached data: {}", e))?;
@@ -215,9 +222,7 @@ pub async fn fetch_hackerrank_profile(
     );
 
     // Parse profile
-    let hr_profile = profile_res?
-        .model
-        .ok_or("HackerRank user not found")?;
+    let hr_profile = profile_res?.model.ok_or("HackerRank user not found")?;
 
     let display_name = hr_profile.username.clone().unwrap_or(username.clone());
 
@@ -279,7 +284,10 @@ pub async fn fetch_hackerrank_profile(
 
     // Cache
     {
-        let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|e| format!("DB lock error: {}", e))?;
         let json = serde_json::to_string(&profile)
             .map_err(|e| format!("Failed to serialize profile: {}", e))?;
         cache::set_cached(&conn, "hackerrank", &username, &json, &now)?;

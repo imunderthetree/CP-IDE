@@ -1,12 +1,14 @@
-## Describe your changes
-[Please provide a detailed description of what changes this PR brings. What bug does it fix, or what feature does it add?]
+## Summary
+[Describe the bug fix, feature, or maintenance change in a few sentences.]
 
-## Issue ticket number and link
-[If applicable, link to the issue ticket.]
+## Related Issue
+[Link the issue if there is one.]
 
-## Checklist before requesting a review
-- [ ] I have performed a self-review of my code
-- [ ] If it is a core feature, I have added thorough tests.
-- [ ] Code styles are consistent and lints pass (`npm run lint` and `cargo clippy`).
-- [ ] The app compiles and runs properly.
-- [ ] I have verified this does not break existing integrations.
+## Verification
+[List the commands you ran or the flows you tested.]
+
+## Checklist
+- [ ] I reviewed my own changes before requesting review.
+- [ ] I ran `npm run check`.
+- [ ] I updated docs and changelog entries when needed.
+- [ ] I verified the change does not break existing integrations or release metadata.

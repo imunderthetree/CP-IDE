@@ -17,7 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Extensions**: Custom plugin and extension system with settings-based UI for managing them.
 - **Themes**: Support for 6 distinct themes and customizable aesthetics.
 - **Open-source release configurations**: Readying CP-IDE for the community!
+- **Repository automation**: Added CI, Dependabot, and draft release workflows for publish-ready maintenance.
+- **Release guardrails**: Added a release consistency checker plus explicit security and release documentation.
 
 ### Changed
 - Sync versions to `1.0.0`.
 - Update placeholder metadata to final project configurations.
+- Clarify Windows support, compiler bundling behavior, and contributor verification steps in the docs.

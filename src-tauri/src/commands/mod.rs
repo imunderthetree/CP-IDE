@@ -7,7 +7,7 @@ pub mod codeforces;
 pub mod compiler;
 pub mod compiler_detect;
 pub mod complexity;
+pub mod extensions;
 pub mod hackerrank;
 pub mod leetcode;
 pub mod snippets;
-pub mod extensions;

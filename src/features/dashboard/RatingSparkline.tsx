@@ -79,7 +79,7 @@ export default function RatingSparkline({ data, currentRating }: Props) {
             }}
             labelStyle={{ color: "#8b949e" }}
             itemStyle={{ color: tierColor }}
-            formatter={((value: any) => [value, "Rating"]) as any}
+            formatter={(value) => [value, "Rating"]}
           />
           {/* Tier boundary lines */}
           {[1200, 1400, 1600, 1900, 2100].map((boundary) =>

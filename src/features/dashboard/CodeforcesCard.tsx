@@ -22,22 +22,6 @@ export default function CodeforcesCard() {
   const [state, setState] = useState<CardState>("idle");
   const [error, setError] = useState("");
 
-  // Load saved handle on mount
-  useEffect(() => {
-    getCfHandle().then((saved) => {
-      if (saved) {
-        setHandle(saved);
-        setInputHandle(saved);
-      }
-    }).catch(() => {});
-  }, []);
-
-  // Fetch profile when handle is set
-  useEffect(() => {
-    if (!handle) return;
-    loadProfile(handle);
-  }, [handle]);
-
   const loadProfile = useCallback(async (h: string) => {
     setState("loading");
     setError("");
@@ -51,11 +35,23 @@ export default function CodeforcesCard() {
     }
   }, []);
 
+  // Load saved handle on mount
+  useEffect(() => {
+    getCfHandle().then((saved) => {
+      if (saved) {
+        setHandle(saved);
+        setInputHandle(saved);
+        void loadProfile(saved);
+      }
+    }).catch(() => {});
+  }, [loadProfile]);
+
   const handleConnect = async () => {
     const trimmed = inputHandle.trim();
     if (!trimmed) return;
     await setCfHandle(trimmed).catch(() => {});
     setHandle(trimmed);
+    void loadProfile(trimmed);
   };
 
   const handleRefresh = () => {

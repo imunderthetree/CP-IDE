@@ -50,16 +50,14 @@ pub async fn run_complexity_analysis(
     // Resolve compiler
     let compiler = match compiler_path {
         Some(p) => p,
-        None => {
-            detect_compilers(app.clone())
-                .into_iter()
-                .find(|c| c.language == language)
-                .map(|c| c.path)
-                .ok_or(format!(
-                    "No compiler found for {}. Install one or check bundled compilers in Settings.",
-                    language
-                ))?
-        }
+        None => detect_compilers(app.clone())
+            .into_iter()
+            .find(|c| c.language == language)
+            .map(|c| c.path)
+            .ok_or(format!(
+                "No compiler found for {}. Install one or check bundled compilers in Settings.",
+                language
+            ))?,
     };
 
     // Write source to temp dir
@@ -135,10 +133,7 @@ pub async fn run_complexity_analysis(
 
         app.emit(
             "complexity_point",
-            ComplexityDataPoint {
-                n,
-                time_ms: median,
-            },
+            ComplexityDataPoint { n, time_ms: median },
         )
         .map_err(|e| e.to_string())?;
     }
@@ -148,9 +143,7 @@ pub async fn run_complexity_analysis(
 
 /// Stop an in-progress complexity analysis.
 #[tauri::command]
-pub async fn stop_complexity_analysis(
-    cancel: State<'_, ComplexityCancel>,
-) -> Result<(), String> {
+pub async fn stop_complexity_analysis(cancel: State<'_, ComplexityCancel>) -> Result<(), String> {
     cancel.cancelled.store(true, Ordering::SeqCst);
     Ok(())
 }
@@ -168,10 +161,7 @@ impl LcgRng {
     }
 
     fn next(&mut self) -> u64 {
-        self.state = self
-            .state
-            .wrapping_mul(6364136223846793005)
-            .wrapping_add(1);
+        self.state = self.state.wrapping_mul(6364136223846793005).wrapping_add(1);
         (self.state >> 33) % 1_000_000 + 1
     }
 }

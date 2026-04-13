@@ -43,24 +43,21 @@ fn get_platform_auth(platform: &str) -> Result<PlatformAuth, String> {
 // ─── Keyring Helpers ──────────────────────────────────────────────────────────
 
 fn store_credential(key: &str, value: &str) -> Result<(), String> {
-    let entry = keyring::Entry::new("cp-ide", key)
-        .map_err(|e| format!("Keyring error: {}", e))?;
+    let entry = keyring::Entry::new("cp-ide", key).map_err(|e| format!("Keyring error: {}", e))?;
     entry
         .set_password(value)
         .map_err(|e| format!("Failed to store credential: {}", e))
 }
 
 fn read_credential(key: &str) -> Result<String, String> {
-    let entry = keyring::Entry::new("cp-ide", key)
-        .map_err(|e| format!("Keyring error: {}", e))?;
+    let entry = keyring::Entry::new("cp-ide", key).map_err(|e| format!("Keyring error: {}", e))?;
     entry
         .get_password()
         .map_err(|_| "Not connected".to_string())
 }
 
 fn delete_credential(key: &str) -> Result<(), String> {
-    let entry = keyring::Entry::new("cp-ide", key)
-        .map_err(|e| format!("Keyring error: {}", e))?;
+    let entry = keyring::Entry::new("cp-ide", key).map_err(|e| format!("Keyring error: {}", e))?;
     match entry.delete_credential() {
         Ok(()) => Ok(()),
         Err(keyring::Error::NoEntry) => Ok(()),
@@ -70,15 +67,6 @@ fn delete_credential(key: &str) -> Result<(), String> {
 
 // ─── Cookie Helper ────────────────────────────────────────────────────────────
 
-/// Try to read a specific cookie from the WebView2 shared cookie store
-/// by creating a temporary hidden webview, reading its cookies, then closing it.
-fn get_existing_cookie(app: &tauri::AppHandle, cookie_url: &str, cookie_name: &str) -> Option<String> {
-    // We can't easily read cookies without a webview, so return None.
-    // The polling loop handles this by tracking initial values.
-    let _ = (app, cookie_url, cookie_name);
-    None
-}
-
 // ─── Commands ─────────────────────────────────────────────────────────────────
 
 /// Open a WebView window to the platform's login page.
@@ -86,10 +74,7 @@ fn get_existing_cookie(app: &tauri::AppHandle, cookie_url: &str, cookie_name: &s
 /// any pre-existing cookie), stores it in Windows Credential Manager and
 /// emits 'platform_connected' event. Times out after 5 minutes.
 #[tauri::command]
-pub async fn open_login_window(
-    app: tauri::AppHandle,
-    platform: String,
-) -> Result<(), String> {
+pub async fn open_login_window(app: tauri::AppHandle, platform: String) -> Result<(), String> {
     let auth = get_platform_auth(&platform)?;
 
     let window_label = format!("{}_login", platform);
@@ -172,7 +157,8 @@ pub async fn open_login_window(
         // Capture initial cookie value — WebView2 shares cookies with Edge,
         // so there may already be a stale/expired cookie present.
         let initial_cookie_value: Option<String> = {
-            let win: tauri::WebviewWindow = match app_handle.get_webview_window(&window_label_poll) {
+            let win: tauri::WebviewWindow = match app_handle.get_webview_window(&window_label_poll)
+            {
                 Some(w) => w,
                 None => return,
             };
@@ -181,11 +167,10 @@ pub async fn open_login_window(
                 Err(_) => None::<url::Url>.unwrap(), // won't happen
             };
             match win.cookies_for_url(cookie_url) {
-                Ok(cookies) => {
-                    cookies.iter()
-                        .find(|c| c.name() == cookie_name)
-                        .map(|c| c.value().to_string())
-                }
+                Ok(cookies) => cookies
+                    .iter()
+                    .find(|c| c.name() == cookie_name)
+                    .map(|c| c.value().to_string()),
                 Err(_) => None,
             }
         };
@@ -195,7 +180,8 @@ pub async fn open_login_window(
             tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
 
             // Check if window was closed by user
-            let win: tauri::WebviewWindow = match app_handle.get_webview_window(&window_label_poll) {
+            let win: tauri::WebviewWindow = match app_handle.get_webview_window(&window_label_poll)
+            {
                 Some(w) => w,
                 None => return,
             };

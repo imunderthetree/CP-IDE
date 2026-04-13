@@ -38,7 +38,6 @@ struct CfRatingChange {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct CfSubmission {
-    id: u64,
     creation_time_seconds: i64,
     problem: CfProblem,
     verdict: Option<String>,
@@ -128,8 +127,13 @@ async fn fetch_json<T: serde::de::DeserializeOwned>(url: &str) -> Result<T, Stri
         return Err(format!("API returned status {}: {}", status, body));
     }
 
-    serde_json::from_str(&body)
-        .map_err(|e| format!("Failed to parse JSON: {} — body: {}", e, &body[..body.len().min(200)]))
+    serde_json::from_str(&body).map_err(|e| {
+        format!(
+            "Failed to parse JSON: {} — body: {}",
+            e,
+            &body[..body.len().min(200)]
+        )
+    })
 }
 
 // ─── Data Transformation ──────────────────────────────────────────────────────
@@ -173,7 +177,14 @@ fn build_difficulty_buckets(problems: &[(Option<i64>, &[String])]) -> Vec<Diffic
         *buckets.entry(label.to_string()).or_insert(0) += 1;
     }
 
-    let order = ["< 1200", "1200-1599", "1600-1999", "2000-2399", "2400+", "Unrated"];
+    let order = [
+        "< 1200",
+        "1200-1599",
+        "1600-1999",
+        "2000-2399",
+        "2400+",
+        "Unrated",
+    ];
     order
         .iter()
         .filter_map(|label| {
@@ -241,18 +252,33 @@ fn derive_badges(user: &CfUser, solved_count: usize) -> Vec<Badge> {
 
     // Milestone badges
     if solved_count >= 1000 {
-        badges.push(Badge { name: "1000+ Solved".to_string(), icon: Some("🔥".to_string()) });
+        badges.push(Badge {
+            name: "1000+ Solved".to_string(),
+            icon: Some("🔥".to_string()),
+        });
     } else if solved_count >= 500 {
-        badges.push(Badge { name: "500+ Solved".to_string(), icon: Some("⭐".to_string()) });
+        badges.push(Badge {
+            name: "500+ Solved".to_string(),
+            icon: Some("⭐".to_string()),
+        });
     } else if solved_count >= 100 {
-        badges.push(Badge { name: "100+ Solved".to_string(), icon: Some("💪".to_string()) });
+        badges.push(Badge {
+            name: "100+ Solved".to_string(),
+            icon: Some("💪".to_string()),
+        });
     }
 
     if let Some(rating) = user.max_rating {
         if rating >= 2400 {
-            badges.push(Badge { name: "Grandmaster".to_string(), icon: Some("👑".to_string()) });
+            badges.push(Badge {
+                name: "Grandmaster".to_string(),
+                icon: Some("👑".to_string()),
+            });
         } else if rating >= 1900 {
-            badges.push(Badge { name: "CM+".to_string(), icon: Some("🎯".to_string()) });
+            badges.push(Badge {
+                name: "CM+".to_string(),
+                icon: Some("🎯".to_string()),
+            });
         }
     }
 
@@ -273,7 +299,10 @@ pub async fn fetch_codeforces_profile(
 
     // Check cache first
     {
-        let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|e| format!("DB lock error: {}", e))?;
         if let Some(cached) = cache::get_cached(&conn, "codeforces", &handle) {
             let profile: PlatformProfile = serde_json::from_str(&cached)
                 .map_err(|e| format!("Failed to deserialize cached data: {}", e))?;
@@ -298,7 +327,9 @@ pub async fn fetch_codeforces_profile(
     // Parse user info
     let info_resp = info_res?;
     if info_resp.status != "OK" {
-        return Err(info_resp.comment.unwrap_or_else(|| "Failed to fetch user info".to_string()));
+        return Err(info_resp
+            .comment
+            .unwrap_or_else(|| "Failed to fetch user info".to_string()));
     }
     let users = info_resp.result.ok_or("No user data returned")?;
     let user = users.into_iter().next().ok_or("User not found")?;
@@ -382,7 +413,10 @@ pub async fn fetch_codeforces_profile(
 
     // Cache the result
     {
-        let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|e| format!("DB lock error: {}", e))?;
         let json = serde_json::to_string(&profile)
             .map_err(|e| format!("Failed to serialize profile: {}", e))?;
         cache::set_cached(&conn, "codeforces", &handle, &json, &now)?;
@@ -396,13 +430,19 @@ pub async fn fetch_codeforces_profile(
 /// Get the saved Codeforces handle from settings.
 #[tauri::command]
 pub async fn get_cf_handle(db: tauri::State<'_, DbState>) -> Result<String, String> {
-    let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|e| format!("DB lock error: {}", e))?;
     Ok(cache::get_setting(&conn, "codeforces_handle").unwrap_or_default())
 }
 
 /// Save the Codeforces handle to settings.
 #[tauri::command]
 pub async fn set_cf_handle(handle: String, db: tauri::State<'_, DbState>) -> Result<(), String> {
-    let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|e| format!("DB lock error: {}", e))?;
     cache::set_setting(&conn, "codeforces_handle", &handle)
 }

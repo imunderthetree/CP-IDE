@@ -1,45 +1,43 @@
 # Contributing to CP-IDE
 
-First off, thank you for considering contributing to CP-IDE! It's people like you that make CP-IDE such a great tool.
+Thanks for helping improve CP-IDE.
 
-## Development Setup
+## Before You Start
 
-1. **Prerequisites**:
-   - Node.js (v18+)
-   - Rust (latest stable)
-   - C++, Python, and Java compilers (if you plan to test all languages)
+- CP-IDE currently targets Windows 10/11.
+- Use Node.js `20.19+` and the latest stable Rust toolchain.
+- Install local C++, Python, and Java toolchains if you want to verify all run paths during development.
 
-2. **Clone the repository**:
-   ```sh
-   git clone https://github.com/imunderthetree/CP-IDE.git
-   cd CP-IDE
-   ```
+## Local Setup
 
-3. **Install dependencies**:
-   ```sh
-   npm install
-   ```
+```sh
+git clone https://github.com/imunderthetree/CP-IDE.git
+cd CP-IDE
+npm ci
+npm run tauri:dev
+```
 
-4. **Run the development server**:
-   ```sh
-   npm run tauri dev
-   ```
+## Quality Checks
 
-## Code Style
+Run this before opening a pull request:
 
-- We use ESLint and Prettier for frontend code. Run `npm run lint` before committing.
-- We use `cargo fmt` and `cargo clippy` for Rust backend code.
+```sh
+npm run check
+```
 
-## Pull Request Process
+That command covers linting, frontend build verification, release metadata validation, Rust formatting, and `cargo check`.
 
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. Ensure the test suite passes.
-4. Make sure your code lints.
-5. Issue that pull request!
+## Pull Requests
 
-## Adding New Platform Integrations
-To add support for a new platform:
-1. Identify the platform's parsing structure for test cases.
-2. Implement an extension or an internal listener under `dashboard/` handling WebView extraction.
-3. Hook the extraction logic to `pluginApi` or internal testcase state.
+1. Create your branch from `main`.
+2. Keep changes focused and update docs when behavior or release steps change.
+3. Add tests when you introduce behavior that can be covered automatically.
+4. If you touched release metadata, make sure `CHANGELOG.md` still matches the current version.
+5. Open the pull request with a short summary of what changed and how you verified it.
+
+## Adding Platform Integrations
+
+1. Identify the platform data you need and how it can be fetched safely.
+2. Add the backend command or extension hook needed to retrieve and normalize that data.
+3. Surface the result through `src/lib/tauriClient.ts` and the relevant dashboard UI.
+4. Document any new credentials, cookies, or rate-limit considerations.

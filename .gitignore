@@ -32,6 +32,11 @@ src-tauri/gen/
 *.log
 npm-debug.log*
 
+# Local compiler toolchains for optional release bundling
+src-tauri/compilers/mingw/
+src-tauri/compilers/python/
+src-tauri/compilers/jdk/
+
 # TypeScript
 *.tsbuildinfo
 

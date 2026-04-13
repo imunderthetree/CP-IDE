@@ -69,7 +69,7 @@ export default function TagBreakdownChart({ data }: Props) {
               fontFamily: "var(--font-mono)",
             }}
             labelStyle={{ color: "#8b949e" }}
-            formatter={((value: any) => [`${value} solved`, ""]) as any}
+            formatter={(value) => [`${value} solved`, ""]}
           />
           <Bar dataKey="count" radius={[0, 3, 3, 0]} barSize={14}>
             {top.map((_, idx) => (

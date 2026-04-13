@@ -76,11 +76,15 @@ pub fn get_installed_extensions(app: tauri::AppHandle) -> Result<Vec<ExtensionCo
 pub fn read_extension_script(app: tauri::AppHandle, id: String) -> Result<String, String> {
     let dir = get_extensions_dir(&app)?;
     let file_path = dir.join(format!("{}.js", id));
-    
+
     // Security: ensure the resolved path is still inside the extensions directory.
-    let canonical_file = file_path.canonicalize().map_err(|_| "Extension not found".to_string())?;
-    let canonical_dir = dir.canonicalize().map_err(|_| "Directory error".to_string())?;
-    
+    let canonical_file = file_path
+        .canonicalize()
+        .map_err(|_| "Extension not found".to_string())?;
+    let canonical_dir = dir
+        .canonicalize()
+        .map_err(|_| "Directory error".to_string())?;
+
     if !canonical_file.starts_with(canonical_dir) {
         return Err("Access denied: path traversal detected".into());
     }

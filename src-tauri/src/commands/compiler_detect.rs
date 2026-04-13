@@ -27,10 +27,7 @@ pub fn detect_compilers(app: tauri::AppHandle) -> Vec<DetectedCompiler> {
     let mut found: Vec<DetectedCompiler> = Vec::new();
 
     // Get the resource directory from the app handle
-    let resource_dir = app
-        .path()
-        .resource_dir()
-        .unwrap_or_default();
+    let resource_dir = app.path().resource_dir().unwrap_or_default();
 
     // Check bundled compilers first
     let bundled_paths: Vec<(&str, std::path::PathBuf)> = vec![
@@ -66,10 +63,7 @@ pub fn detect_compilers(app: tauri::AppHandle) -> Vec<DetectedCompiler> {
             continue;
         }
         for &cmd in candidates {
-            if let Ok(out) = std::process::Command::new(cmd)
-                .arg("--version")
-                .output()
-            {
+            if let Ok(out) = std::process::Command::new(cmd).arg("--version").output() {
                 if out.status.success() || !out.stderr.is_empty() {
                     // javac --version writes to stdout on newer JDKs,
                     // but older versions write to stderr
@@ -78,11 +72,7 @@ pub fn detect_compilers(app: tauri::AppHandle) -> Vec<DetectedCompiler> {
                     } else {
                         String::from_utf8_lossy(&out.stdout).to_string()
                     };
-                    let version = output_str
-                        .lines()
-                        .next()
-                        .unwrap_or("unknown")
-                        .to_string();
+                    let version = output_str.lines().next().unwrap_or("unknown").to_string();
 
                     found.push(DetectedCompiler {
                         language: lang.to_string(),
@@ -105,7 +95,11 @@ pub fn detect_compilers(app: tauri::AppHandle) -> Vec<DetectedCompiler> {
 /// Get the version string from a compiler binary.
 /// Note: javac uses `-version` and may write to stderr.
 fn get_compiler_version(path: &Path, lang: &str) -> String {
-    let arg = if lang == "java" { "-version" } else { "--version" };
+    let arg = if lang == "java" {
+        "-version"
+    } else {
+        "--version"
+    };
     std::process::Command::new(path)
         .arg(arg)
         .output()

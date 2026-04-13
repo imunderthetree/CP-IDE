@@ -38,9 +38,7 @@ struct GqlError {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct LcUserProfile {
-    username: Option<String>,
     ranking: Option<i64>,
-    reputation: Option<i64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -72,7 +70,6 @@ struct LcProfileData {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct LcContestRanking {
-    attended_contests_count: Option<i64>,
     rating: Option<f64>,
     global_ranking: Option<i64>,
 }
@@ -86,7 +83,6 @@ struct LcContestHistoryEntry {
 
 #[derive(Debug, Deserialize)]
 struct LcContest {
-    title: String,
     #[serde(rename = "startTime")]
     start_time: Option<String>,
 }
@@ -181,11 +177,20 @@ async fn lc_graphql<T: serde::de::DeserializeOwned>(
         .map_err(|e| format!("Failed to read LeetCode response: {}", e))?;
 
     if !status.is_success() {
-        return Err(format!("LeetCode API returned {}: {}", status, &text[..text.len().min(300)]));
+        return Err(format!(
+            "LeetCode API returned {}: {}",
+            status,
+            &text[..text.len().min(300)]
+        ));
     }
 
-    let gql: GqlResponse<T> = serde_json::from_str(&text)
-        .map_err(|e| format!("Failed to parse LeetCode response: {} — {}", e, &text[..text.len().min(200)]))?;
+    let gql: GqlResponse<T> = serde_json::from_str(&text).map_err(|e| {
+        format!(
+            "Failed to parse LeetCode response: {} — {}",
+            e,
+            &text[..text.len().min(200)]
+        )
+    })?;
 
     if let Some(errors) = gql.errors {
         if !errors.is_empty() {
@@ -193,7 +198,8 @@ async fn lc_graphql<T: serde::de::DeserializeOwned>(
         }
     }
 
-    gql.data.ok_or_else(|| "No data in LeetCode response".to_string())
+    gql.data
+        .ok_or_else(|| "No data in LeetCode response".to_string())
 }
 
 // ─── GraphQL Queries ──────────────────────────────────────────────────────────
@@ -309,7 +315,9 @@ query globalData {
 
 async fn detect_username(session: &str) -> Result<String, String> {
     let data: LcGlobalData = lc_graphql(session, GLOBAL_QUERY, serde_json::json!({})).await?;
-    let status = data.user_status.ok_or("Could not detect LeetCode username")?;
+    let status = data
+        .user_status
+        .ok_or("Could not detect LeetCode username")?;
     if status.is_signed_in != Some(true) {
         // Auto-clear stale credential so user sees Connect button on next load
         if let Ok(entry) = keyring::Entry::new("cp-ide", "cpide_leetcode_session") {
@@ -317,7 +325,9 @@ async fn detect_username(session: &str) -> Result<String, String> {
         }
         return Err("SESSION_EXPIRED".to_string());
     }
-    status.username.ok_or("No username in LeetCode session".to_string())
+    status
+        .username
+        .ok_or("No username in LeetCode session".to_string())
 }
 
 // ─── Main Tauri Command ───────────────────────────────────────────────────────
@@ -330,7 +340,9 @@ pub async fn fetch_leetcode_profile(
     let session = {
         let entry = keyring::Entry::new("cp-ide", "cpide_leetcode_session")
             .map_err(|e| format!("Keyring error: {}", e))?;
-        entry.get_password().map_err(|_| "NOT_CONNECTED".to_string())?
+        entry
+            .get_password()
+            .map_err(|_| "NOT_CONNECTED".to_string())?
     };
 
     // Auto-detect username from session
@@ -338,7 +350,10 @@ pub async fn fetch_leetcode_profile(
 
     // Check cache (30-min TTL)
     {
-        let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|e| format!("DB lock error: {}", e))?;
         if let Some(cached) = cache::get_cached(&conn, "leetcode", &username) {
             let profile: PlatformProfile = serde_json::from_str(&cached)
                 .map_err(|e| format!("Failed to deserialize cached data: {}", e))?;
@@ -360,12 +375,10 @@ pub async fn fetch_leetcode_profile(
 
     // Parse profile
     let profile_data = profile_res?;
-    let matched = profile_data.matched_user.ok_or("User not found on LeetCode")?;
-    let lc_profile = matched.profile.unwrap_or(LcUserProfile {
-        username: Some(username.clone()),
-        ranking: None,
-        reputation: None,
-    });
+    let matched = profile_data
+        .matched_user
+        .ok_or("User not found on LeetCode")?;
+    let lc_profile = matched.profile.unwrap_or(LcUserProfile { ranking: None });
 
     // Difficulty breakdown
     let submit_stats = matched.submit_stats;
@@ -404,11 +417,17 @@ pub async fn fetch_leetcode_profile(
         .iter()
         .filter(|e| e.rating.unwrap_or(0.0) > 0.0)
         .map(|e| {
-            let ts = e.contest.start_time.as_deref()
+            let ts = e
+                .contest
+                .start_time
+                .as_deref()
                 .and_then(|s| s.parse::<i64>().ok())
-                .map(|t| Utc.timestamp_opt(t, 0).single()
-                    .map(|dt| dt.to_rfc3339())
-                    .unwrap_or_default())
+                .map(|t| {
+                    Utc.timestamp_opt(t, 0)
+                        .single()
+                        .map(|dt| dt.to_rfc3339())
+                        .unwrap_or_default()
+                })
                 .unwrap_or_default();
             RatingPoint {
                 date: ts,
@@ -428,11 +447,16 @@ pub async fn fetch_leetcode_profile(
         .unwrap_or_default()
         .iter()
         .map(|s| {
-            let ts = s.timestamp.as_deref()
+            let ts = s
+                .timestamp
+                .as_deref()
                 .and_then(|t| t.parse::<i64>().ok())
-                .map(|t| Utc.timestamp_opt(t, 0).single()
-                    .map(|dt| dt.to_rfc3339())
-                    .unwrap_or_default())
+                .map(|t| {
+                    Utc.timestamp_opt(t, 0)
+                        .single()
+                        .map(|dt| dt.to_rfc3339())
+                        .unwrap_or_default()
+                })
                 .unwrap_or_default();
             Submission {
                 problem_name: s.title.clone(),
@@ -448,7 +472,10 @@ pub async fn fetch_leetcode_profile(
     let mut tag_map: HashMap<String, usize> = HashMap::new();
     if let Some(user) = tag_data.matched_user {
         if let Some(counts) = user.tag_problems_counts {
-            for list in [counts.advanced, counts.intermediate, counts.fundamental].iter().flatten() {
+            for list in [counts.advanced, counts.intermediate, counts.fundamental]
+                .iter()
+                .flatten()
+            {
                 for tp in list {
                     *tag_map.entry(tp.tag_name.clone()).or_insert(0) += tp.problems_solved as usize;
                 }
@@ -479,11 +506,20 @@ pub async fn fetch_leetcode_profile(
         });
     }
     if total_solved >= 500 {
-        badges.push(Badge { name: "500+ Solved".to_string(), icon: Some("🔥".to_string()) });
+        badges.push(Badge {
+            name: "500+ Solved".to_string(),
+            icon: Some("🔥".to_string()),
+        });
     } else if total_solved >= 200 {
-        badges.push(Badge { name: "200+ Solved".to_string(), icon: Some("⭐".to_string()) });
+        badges.push(Badge {
+            name: "200+ Solved".to_string(),
+            icon: Some("⭐".to_string()),
+        });
     } else if total_solved >= 50 {
-        badges.push(Badge { name: "50+ Solved".to_string(), icon: Some("💪".to_string()) });
+        badges.push(Badge {
+            name: "50+ Solved".to_string(),
+            icon: Some("💪".to_string()),
+        });
     }
 
     let rank_str = lc_profile.ranking.map(|r| format!("#{}", r));
@@ -507,7 +543,10 @@ pub async fn fetch_leetcode_profile(
 
     // Cache
     {
-        let conn = db.conn.lock().map_err(|e| format!("DB lock error: {}", e))?;
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|e| format!("DB lock error: {}", e))?;
         let json = serde_json::to_string(&profile)
             .map_err(|e| format!("Failed to serialize profile: {}", e))?;
         cache::set_cached(&conn, "leetcode", &username, &json, &now)?;

@@ -87,7 +87,6 @@ export default function SettingsPage() {
 
   // ── Detect compilers on mount ───────────────────────────────────────────
   useEffect(() => {
-    setCompilersLoading(true);
     detectCompilers()
       .then((found) => {
         setCompilers(found);

@@ -142,4 +142,3 @@ pub fn clear_cached(conn: &Connection, platform: &str) -> Result<(), String> {
     .map_err(|e| format!("Failed to clear cache: {}", e))?;
     Ok(())
 }
-

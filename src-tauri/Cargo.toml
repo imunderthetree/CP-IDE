@@ -5,6 +5,9 @@ description = "A high-performance desktop IDE tailored for competitive programmi
 authors = ["Yusuf", "imunderthetree"]
 license = "MIT"
 repository = "https://github.com/imunderthetree/CP-IDE"
+homepage = "https://github.com/imunderthetree/CP-IDE"
+readme = "../README.md"
+keywords = ["competitive-programming", "ide", "tauri", "react"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
