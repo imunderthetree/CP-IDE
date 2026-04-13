@@ -2,9 +2,10 @@
 
 Competitive programming desktop IDE built with Tauri, React, TypeScript, and Rust.
 
-[![Checks](https://img.shields.io/badge/Checks-Run%20Locally-0A7EA4)](#verification)
-[![Releases](https://img.shields.io/badge/Releases-Manual%20Upload-2F855A)](RELEASING.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/imunderthetree/CP-IDE/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/imunderthetree/CP-IDE/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/imunderthetree/CP-IDE?display_name=tag&style=flat-square&label=Release)](https://github.com/imunderthetree/CP-IDE/releases)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D4?style=flat-square&logo=windows&logoColor=white)](#platform-support)
+[![License](https://img.shields.io/github/license/imunderthetree/CP-IDE?style=flat-square)](LICENSE)
 
 ## Why CP-IDE
 
