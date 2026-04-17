@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-04-16
+
+### Fixed
+- Restore lint dependency compatibility so clean `npm ci` installs succeed on the release branch.
+- Refresh Rust networking and database dependencies to newer stable releases for a more reliable Windows package.
+- Update the release and CI workflows to current GitHub Action versions used by the project.
+- Correct the local release documentation so manual Windows installer builds and GitHub release uploads follow the current process.
+
+### Changed
+- Refresh frontend tooling dependencies used to build and validate the desktop app while keeping the lint toolchain on compatible versions.
+- Keep release metadata in sync for the `1.0.1` maintenance build.
+
 ## [1.0.0] - 2026-04-12
 
 ### Added

@@ -1,6 +1,6 @@
 [package]
 name = "cp-ide"
-version = "1.0.0"
+version = "1.0.1"
 description = "A high-performance desktop IDE tailored for competitive programming."
 authors = ["Yusuf", "imunderthetree"]
 license = "MIT"

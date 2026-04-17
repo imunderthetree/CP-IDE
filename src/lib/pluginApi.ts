@@ -3,6 +3,7 @@
 // Defines `window.cpide` which is used by community extensions to hook
 // into the editor, listen to execution events, and manipulate the UI.
 
+import { APP_VERSION } from "./appVersion";
 import { RunCodeResponse } from "./tauriClient";
 
 export interface ExtensionRunRequest {
@@ -18,7 +19,7 @@ export type BeforeRunCallback = (
 export type AfterRunCallback = (res: RunCodeResponse) => void;
 
 class CpIdeExtensionApi {
-  public version = "1.0.0";
+  public version = APP_VERSION;
   // Hidden references to the actual editor getter/setter injected later
   public _internal = {
     getEditorText: (): string => "",

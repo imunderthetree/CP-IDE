@@ -25,6 +25,7 @@ import { ComplexityPanel } from "./features/complexity";
 import { EditorProvider } from "./context/EditorContext";
 import { ExtensionProvider } from "./context/ExtensionContext";
 import { apiInstance, ExtensionRunRequest } from "./lib/pluginApi";
+import { APP_VERSION } from "./lib/appVersion";
 import { loadAppearance, applyAppearance } from "./lib/themes";
 import { runCode, runBatch, type RunCodeResponse } from "./lib/tauriClient";
 import type { Language } from "./features/editor/LanguageSwitcher";
@@ -547,7 +548,7 @@ export default function App() {
               <span>CP-IDE</span>
             </div>
             <div className="status-item">
-              <span>v1.0.0</span>
+              <span>v{APP_VERSION}</span>
             </div>
             <div style={{ flex: 1 }} />
             <div className="status-item">
